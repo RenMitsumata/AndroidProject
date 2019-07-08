@@ -1,0 +1,12 @@
+
+	// タッチイベントをプレイヤークラスに渡す
+    public void Touch(MotionEvent event)
+    {
+        player.Touch(event);
+    }
+	
+	// ボタンイベントをプレイヤークラスに渡す
+    public void Button(int id, MotionEvent event)
+    {
+        player.Button(id, event);
+    }

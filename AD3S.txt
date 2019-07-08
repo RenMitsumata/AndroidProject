@@ -1,0 +1,186 @@
+●Androidとは
+Google社が主導するOS
+スマートフォン・タブレット分野で大きなシェア
+（世界的にはAndroid>>iOS）を持つ。
+・スマホ、タブレット
+・AndroidTV
+・PC
+　…
+多彩なプラットフォーム
+・安価なデバイス・豊富なデベロッパー
+・開発環境が整えやすい
+・Javaで開発でき、プログラミングしやすい
+・GooglePlayストアでのリリース→＄25で永久ライセンス
+（→AppStore(iOS)：\11800/年）
+
+☆開発環境
+　必要なもの
+　AndroidStudio
+　JDK…(JavaDevelopmentKit)
+　エミュレータまたは実機
+
+●手順
+１．JDKをインストール
+　　全てデフォルト設定
+２．AndroidStudioをインストール
+　　全てデフォルト設定
+３．AndroidSDKダウンロード
+　　ウィザード形式ーデフォルト設定
+
+●プロジェクト作成
+　　ユーザフォルダ内「AndroidStudioProject」の中に作成される
+　　ソースファイルはapp/src/main/java内にある(MainActivity.java)
+
+●エミュレータで実行
+　　メニュー→Run→Debug"app"
+　　Shift+F9
+　　→実行デバイス選択
+　　（エミュレータ、実機など使用可能リスト）
+　　リストが空→エミュレータを作成
+　　「Create New Virtual Device」ボタンをクリック
+　
+☆アクティビティ
+Androidアプリの１つの画面を表すもの（≒Windowsのウィンドウ）
+アクティビティの動作を記述したり、アクティビティ同士の遷移を行ってAndroidアプリを作成する
+
+●アクティビティ・ライフサイクル
+
+１．アクティビティ開始
+２．onCreate()←―――――――――――――――――――――――――――
+３．onStart()　　　　　　再表示　　　　　　　　　　　　　　　　　　　｜
+４．onResume()←―――――――――――――――――――――　　　　　 ｜
+５．アクティビティ実行中―ホームボタンや別アプリ起動 　OnRestart プロセス終了
+６．onPause()――――――――――――――――――――――⊥―――――｜
+７．onStop()―――――――――――――――――――――――――――――他のアプリなどでメモリ必要
+８．onDestroy()
+９．アクティビティ破棄
+
+●コールバック関数
+　　状態変化が起きた時に自動的に呼ばれる関数
+　・onCreate()―アクティビティ生成時、初期化処理などを記述
+　・onPause()―ホームボタンなどの中断時、復帰のための準備処理など
+
+☆Javaの文法
+Java VM(Virtual Machine)…Javaを動作させるための仮想マシン
+JavaはC/C++の文法をベースとした、オブジェクト指向言語
+
+●C/C++との文法比較
+・変数（プリミティブ型）
+int	32bit
+short	16bit
+char	16bit
+long	64bit
+byte	8bit
+全て整数型
+符号付のみ(unsignedは使えない)
+
+float　32bit
+double 64bit
+実数型
+
+boolean
+論理型(true/false)
+
+・条件分岐/ループなど
+if,switch~case,
+for,while,break,continue,…
+→C言語と同じ文法で使用可能
+
+・配列
+int[] array = new int[10]
+<->Cでの配列生成
+int array[10];→Javaでは×
+int *array = new int[10];
+Javaにはポインタの概念がない！
+→*は使えない
+
+※2通りの記述が可能
+int array[] = new int[10];
+
+・構造体
+Javaには構造体はない
+→クラスとして実装する
+（構造体メンバ＝クラスのメンバ変数）
+
+例）public class Vector2D{
+public float x;
+public float y;
+}
+
+・クラス
+public class MyClass{
+	private int n;
+	public void;	/* 関数の戻り値などにしか使わない */
+	public void func(){
+		ここに直接動作を記述（ヘッダファイルは作らない）
+	}
+}
+アクセス指定子…C++と同じだが、個々にprivateとpublicに書かなければならない
+
+クラス生成・呼び出し
+MyClass c = new MyClass();
+インスタンス生成には必ずnewが必要
+c.Func();
+ピリオドでメンバにアクセス（C++と一緒）
+MyClass.StaticFanc();
+Staticメンバでも、スコープ解決演算子ではなく、ピリオドを使う。
+
+
+☆画像表示
+Androidでは、描画にOpenGLを使用
+●画像表示の方法
+１．画像リソースを読み込んでテクスチャを生成
+２．ポリゴンで四角形を表示→テクスチャを貼る
+●リソースフォルダ
+drawable
+raw
+layout
+string
+●端末による解像度の違い
+解像度も縦横比も違う
+→システム側で吸収する必要性
+
+対策
+・解像度に合わせて拡大/縮小
+(OpenGLによる座標系の固定)
+→画面の幅や高さを仮想的に同じに
+GLU.gluOrtho2D()
+縦横比の違いは、余った部分を黒で塗りつぶす、絵で埋めるなど
+解像度対応に適した座標系
+中心が(0,0)
+左右がX座標（右が正）
+上下はY座標（下が正）
+
+☆スプライトクラス
+sprite.java - 2D画像表示クラス
+
+gameview.java - ゲームメイン処理
+spriteクラスのインスタンスを生成
+ondrawframe() - ゲームループ
+update() - 更新処理
+ sprite.update(dt); - spriteクラスの更新
+draw() - 描画処理
+ sprite.draw(gl10); -spriteクラスの描画
+onsurfacechanged - 初期化
+ info = texturemanager.loadtexture(…,R.drawable.player000);
+sprite = new sprite();
+●spriteの複数表示
+→インスタンスが複数必要
+Sprite sprite; → Sprite[] sprite = new Sprite[10];
+↓個別にインスタンス生成
+for(int i=0;i<10;i++){
+ sprite[i] = new Sprite();
+ sprite[i].Init(…);
+}
+
+☆タッチ操作
+Playerクラス（Spriteクラスから派生、タッチ操作を実装する）
+(Gameview.java)
+Player[] player;
+
+☆クラスの継承
+public class Player extends Sprite{}
+extends…継承を表す
+・メンバ関数、メンバ変数(private以外)をそのまま引き継ぐ
+・メンバ関数に独自処理を記述（オーバーライド）して同じように呼び出せる（@overrideは必ずしもつけなくてよい）
+■Spriteクラスを継承して背景クラス(Bg)を作成、表示（スクロールにも挑戦）
