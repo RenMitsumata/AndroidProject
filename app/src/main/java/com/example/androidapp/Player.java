@@ -41,6 +41,7 @@ public class Player extends Sprite
 				break;
 			case R.id.buttonA:
 				if(canBullet){
+					Sound.PlaySE(R.raw.explosion000);
 					Bullet bullet = new Bullet();
 					TextureInfo info = new TextureInfo();
 					info = TextureManager.loadTexture(gl, context.getResources(), R.drawable.bullet);

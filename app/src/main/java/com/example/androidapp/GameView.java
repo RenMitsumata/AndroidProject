@@ -171,11 +171,9 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
         info3 = TextureManager.loadTexture(gl, context.getResources(), R.drawable.enemy000);
         enemy.Init(info3);
 
-/*
-        TextureInfo enemyInfo = new TextureInfo();
-        enemyInfo = TextureManager.loadTexture(gl, context.getResources(), R.drawable.enemy000);
-        sprite.Init(enemyInfo,0,0,100,100);
-*/
+        Sound.Init(context);
+        Sound.LoadSE(R.raw.explosion000);
+        Sound.PlayBGM(R.raw.bgm000);
     }
 
     @Override
