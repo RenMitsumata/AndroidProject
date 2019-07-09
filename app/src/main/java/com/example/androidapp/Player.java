@@ -11,15 +11,13 @@ public class Player extends Sprite
 {
 	private float velocity_x = 0, velocity_y = 0;
 	private int button = 0;
-	private Bullet bullet;
+	private boolean canBullet = true;
 	//@Override
 	// 更新処理(Spriteクラスの処理をオーバーライド)
 	public void Update(float dt, GL10 gl, Context context)
 	{
 		super.Update(dt);
-		if(bullet != null){
-			bullet.Update();
-		}
+
 		// 移動処理
 		x += velocity_x * dt;
 		y += velocity_y * dt;
@@ -42,10 +40,14 @@ public class Player extends Sprite
 				velocity_x += 2000 * dt;
 				break;
 			case R.id.buttonA:
-				bullet = new Bullet();
-				TextureInfo info = new TextureInfo();
-				info = TextureManager.loadTexture(gl, context.getResources(), R.drawable.bullet);
-				bullet.Init(info, x, y + 50.0f, 30, 30);
+				if(canBullet){
+					Bullet bullet = new Bullet();
+					TextureInfo info = new TextureInfo();
+					info = TextureManager.loadTexture(gl, context.getResources(), R.drawable.bullet);
+					bullet.Init(info, x, y + 50.0f, 30, 30);
+					GameView.AddBullet(bullet);
+					canBullet = false;
+				}
 				break;
 		}
 
@@ -82,15 +84,14 @@ public class Player extends Sprite
 		{
 			// ボタンが離されたら押下ボタンをリセット
 			button = 0;
+			canBullet = true;
 		}
 	}
 
 	@Override
 	public void Draw(GL10 gl) {
 
-		if(bullet != null) {
-			bullet.Draw(gl);
-		}
+
 		super.Draw(gl);
 	}
 }
