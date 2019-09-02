@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -42,18 +43,21 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
 
     Player player;
-    Enemy enemy;
     Bg bg;
     static int count = 0;
     static List<Bullet> _bulletlist;
     static List<Enemy> _enemylist;
+    static List<Collision> _collisionlist;
+    static List<Enemy> deleteEnemyList;
+    static List<Bullet> deleteBulletList;
     static TextureInfo info3;
-    public static void AddBullet(Bullet bullet){
-        _bulletlist.add(bullet);
-    }
+    public static void AddBullet(Bullet bullet){_bulletlist.add(bullet); }
     public static void AddEnemylist(Enemy enemy){
         _enemylist.add(enemy);
     }
+    public static void AddDeleteBulletList(Bullet bullet){deleteBulletList.add(bullet);}
+    public static void AddDeleteEnemyList(Enemy enemy){deleteEnemyList.add(enemy);}
+
 
     public GameView(Context context, boolean fs_enable)
     {
@@ -131,10 +135,13 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
     public void onSurfaceChanged(GL10 gl, int width, int height)
     {
         player = new Player(); // 明示的にインスタンスをnewしないといけない
-        enemy = new Enemy();
+        Enemy.LoadTexture(gl,context);
+        Enemy enemy = new EnemyA();
         bg = new Bg();
         _bulletlist = new ArrayList<>();
         _enemylist = new ArrayList<>();
+        deleteEnemyList = new ArrayList<>();
+        deleteBulletList= new ArrayList<>();
         gl10 = gl;
 
         // 大きな遅延が起こるので、次回フレーム処理時のフレームスキップを無効に
@@ -167,10 +174,10 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
         TextureInfo info2 = new TextureInfo();
         info2 = TextureManager.loadTexture(gl, context.getResources(), R.drawable.bg000);
         bg.Init(info2, 0, 0, width, height);
-        info3 = new TextureInfo();
-        info3 = TextureManager.loadTexture(gl, context.getResources(), R.drawable.enemy000);
-        enemy.Init(info3);
-
+        Random rand = new Random();
+        int pos = rand.nextInt(400);
+        enemy.Init(pos,500);
+        _enemylist.add(enemy);
         Sound.Init(context);
         Sound.LoadSE(R.raw.explosion000);
         Sound.PlayBGM(R.raw.bgm000);
@@ -222,18 +229,56 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
     private void Update(float dt)
     {
         count++;
-        enemy.Update(dt);
+        for(Enemy enemy : _enemylist){
+            enemy.Update(dt);
+        }
         for(Bullet b : _bulletlist) {
             b.Update();
         }
-        if(count > 100){
+        if(count > 50){
             count = 0;
-            Enemy enemy = new Enemy();
-            enemy.Init(info3);
-            _enemylist.add(enemy);
+            Random rand = new Random();
+            int pos = rand.nextInt(400);
+            Enemy nEnemy;
+            if(pos % 2 == 0){
+                nEnemy = new EnemyA();
+            }
+            else{
+                nEnemy = new EnemyB();
+            }
+            nEnemy.Init(pos,700);
+            _enemylist.add(nEnemy);
         }
         player.Update(dt,gl10,context);
+        // 当たり判定
 
+        // プレイヤーとエネミーの当たり判定
+
+
+
+        for(Bullet bullet : _bulletlist){
+
+
+            for(Enemy enemy:_enemylist){
+                if(bullet.col.isHit(enemy.Getcol())){
+                    enemy.visible = false;
+                    player.AddScore(enemy.Score());
+                    deleteBulletList.add(bullet);
+                    deleteEnemyList.add(enemy);
+                    break;
+                }
+
+            }
+        }
+
+        for(Bullet bullet : deleteBulletList){
+            _bulletlist.remove(bullet);
+        }
+        deleteBulletList.clear();
+        for(Enemy enemy : deleteEnemyList){
+            _enemylist.remove(enemy);
+        }
+        deleteEnemyList.clear();
 
     }
 
@@ -242,7 +287,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
     {
 
         bg.Draw(gl10);
-        enemy.Draw(gl10);
+
         for(Enemy e : _enemylist) {
             e.Draw(gl10);
         }

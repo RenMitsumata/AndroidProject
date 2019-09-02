@@ -12,6 +12,7 @@ public class Player extends Sprite
 	private float velocity_x = 0, velocity_y = 0;
 	private int button = 0;
 	private boolean canBullet = true;
+	private int score = 0;
 	//@Override
 	// 更新処理(Spriteクラスの処理をオーバーライド)
 	public void Update(float dt, GL10 gl, Context context)
@@ -91,8 +92,11 @@ public class Player extends Sprite
 
 	@Override
 	public void Draw(GL10 gl) {
-
-
 		super.Draw(gl);
 	}
+
+	public void AddScore(int score){
+		this.score += score;
+	}
+
 }

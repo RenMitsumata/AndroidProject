@@ -215,4 +215,4 @@ enemy[1] = new EnemyB();
 
 for(int i = 0; i < 2; i++){
 　enemy[i].Update(dt);
-}
+}---各派生クラスのオーバーライド関数（固有処理）が呼ばれる

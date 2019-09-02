@@ -1,68 +1,89 @@
 package com.example.androidapp;
 
 import android.content.Context;
-import android.view.MotionEvent;
-import java.util.Random;
+import java.util.regex.Pattern;
 import javax.microedition.khronos.opengles.GL10;
 
-// Spriteクラスを継承したPlayerクラス
+// 敵ベースクラス
 public class Enemy extends Sprite
 {
-	private float velocity_x = 0, velocity_y = 0;
+    ColSphere col;
+    Vector2 vec;
+    // 敵情報テーブル(敵を作る際ここに追加)
+    private static EnemyInfo info[] = {
+            new EnemyInfo(
+                    "EnemyA",               // クラス名
+                    R.drawable.enemy001,    // 画像リソースID
+                    100, 100,               // 横幅・縦幅
+                    2,                      // アニメパターン数
+                    0.1f,                   // アニメ間隔
+                    100                     // 得点
+            ),
+            new EnemyInfo(
+                    "EnemyB",               // クラス名
+                    R.drawable.enemy000,    // 画像リソースID
+                    100, 100,               // 横幅・縦幅
+                    2,                      // アニメパターン数
+                    0.1f,                   // アニメ間隔
+                    200                     // 得点
+            ),
+    };
 
-	private Bullet bullet;
+    // 敵の種類数＝テーブルのサイズ
+    public static final int TYPE_MAX = info.length;
 
-	public void Init(TextureInfo texInfo){
-		this.texInfo = texInfo;
-		Random random = new Random();
-		int randomValue = random.nextInt(200);
-		super.Init(texInfo,randomValue,400,100,100,0,false,1.0f,2,2.0f);
-	}
-	//@Override
-	// 更新処理(Spriteクラスの処理をオーバーライド)
-	public void Update(float dt)
-	{
-		y -= 3;
-		super.Update(dt);
-		if(bullet != null){
-			bullet.Update();
-		}
-		/*
-		// 移動処理
-		x += velocity_x * dt;
-		y += velocity_y * dt;
+    // テクスチャ情報テーブル
+    private static TextureInfo[] texInfo = new TextureInfo[info.length];
 
-		// 移動速度を更新
-		velocity_x -= velocity_x * 5 * dt;
-		velocity_y -= velocity_y * 5 * dt;
-		*/
-	}
+    // 敵の種類(テーブルのインデックス)
+    private int type;
+    // 有効フラグ(GameView側からこれを元にインスタンスの破棄を行う)
+    public boolean visible;
 
-	// タッチイベント処理
-	void Touch(MotionEvent event)
-	{
-		// バレット生成
+    // 使用画像を全て読み込み
+    public static void LoadTexture(GL10 gl, Context context)
+    {
+        for(int i = 0; i < info.length; i++)
+        {
+            texInfo[i] = TextureManager.loadTexture(gl, context.getResources(), info[i].resId);
+        }
+    }
 
-/*
-		// タッチ座標をゲームシステム座標に変換
-		float ratio = GameView.BASE_WID / MainActivity.screenWid;
-		float tx = ( event.getX() - MainActivity.screenWid / 2) * ratio;
-		float ty = (-event.getY() + MainActivity.screenHei / 2) * ratio;
-
-		// 移動速度を更新
-		velocity_x += (tx - x) * 0.5f;
-		velocity_y += (ty - y) * 0.5f;
-		*/
-	}
-
+    // 初期化
+    public void Init(
+            float x,    // X座標
+            float y     // Y座標
+    )
+    {
+        // クラス名を取得し情報テーブルを使用して初期化
+        String[] s = this.getClass().getName().split(Pattern.quote("."));
+        for(int i = 0; i < info.length; i++)
+        {
+            if(s[s.length - 1].equals(info[i].className))
+            {
+                Init(texInfo[i], x, y, info[i].wid, info[i].hei, 0, false, 1, info[i].pattern, info[i].interval);
+                col = new ColSphere();
+                vec = new Vector2();
+                vec.x = x;
+                vec.y=  y;
+                col.Init(vec,50.0f);
+                visible = true;
+                type = i;
+                break;
+            }
+        }
 
 
-	@Override
-	public void Draw(GL10 gl) {
 
-		if(bullet != null) {
-			bullet.Draw(gl);
-		}
-		super.Draw(gl);
-	}
+    }
+
+    // 得点をテーブルから取得
+    public int Score()
+    {
+        return info[type].score;
+    }
+
+    public ColSphere Getcol(){
+        return col;
+    }
 }

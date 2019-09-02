@@ -3,6 +3,9 @@ package com.example.androidapp;
 
 
 public class Bullet extends Sprite {
+    ColSphere col;
+    Vector2 vec;
+    int lifetime;
     // 初期化(簡易設定)
     public void Init(
             TextureInfo texInfo,    // com.example.androidapp.TextureManager.loadTexture()の戻り値
@@ -40,13 +43,26 @@ public class Bullet extends Sprite {
         this.alpha = alpha;
         this.pattern = pattern;
         this.interval = interval;
-
+        vec = new Vector2();
+        vec.x = x;
+        vec.y = y;
+        col=new ColSphere();
+        col.Init(vec,15.0f);
+        lifetime = 100;
         if(this.interval <= 0) this.interval = 1;
         animCnt = 0;
     }
 
     public void Update(){
-        this.y += 5;
+
+        this.y += 15;
+        vec.x=this.x;
+        vec.y=this.y;
+        col.Update(vec);
+        lifetime--;
+        if(lifetime <=0){
+            GameView.AddDeleteBulletList(this);
+        }
     }
 
 }
