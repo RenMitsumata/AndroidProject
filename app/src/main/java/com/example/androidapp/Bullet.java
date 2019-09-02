@@ -48,4 +48,5 @@ public class Bullet extends Sprite {
     public void Update(){
         this.y += 5;
     }
+
 }
