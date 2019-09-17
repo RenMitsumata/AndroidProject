@@ -14,7 +14,7 @@ public class ColSphere extends Collision {
         this.radius = radius;
     }
     void Update(Vector2 pos){
-
+        this.pos = pos;
     }
     Vector2 GetPos(){
         return pos;

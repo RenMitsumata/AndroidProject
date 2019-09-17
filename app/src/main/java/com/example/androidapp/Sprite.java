@@ -84,10 +84,10 @@ public class Sprite {
     {
         // アニメカウンタ更新
         animCnt += dt;
-        /*
+
         this.x += x;
         this.y += y;
-        */
+
     }
     // 描画
     public void Draw(GL10 gl)

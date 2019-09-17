@@ -1,8 +1,9 @@
 package com.example.androidapp;
-
+import javax.microedition.khronos.opengles.GL10;
 
 
 public class Bg extends Sprite {
+    float mover;
     // 初期化(簡易設定)
     public void Init(
             TextureInfo texInfo,    // com.example.androidapp.TextureManager.loadTexture()の戻り値
@@ -43,5 +44,26 @@ public class Bg extends Sprite {
 
         if(this.interval <= 0) this.interval = 1;
         animCnt = 0;
+        mover = 0.0f;
+    }
+    @Override
+    public void Update(float dt){
+        mover -= 0.01f;
+    }
+
+    @Override
+    public void Draw(GL10 gl){
+        // 読込失敗時
+        if(texInfo == null) return;
+
+        // テクスチャ描画
+        TextureDrawer.drawTexture(
+                gl,
+                texInfo.texId,
+                x, y, wid, hei,
+                rotate, reverse,
+                0, mover, 1.0f, 1.0f,
+                1, 1, 1, alpha
+        );
     }
 }

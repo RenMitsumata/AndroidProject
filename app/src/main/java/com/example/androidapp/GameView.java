@@ -44,6 +44,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     Player player;
     Bg bg;
+    UI ui;
     static int count = 0;
     static List<Bullet> _bulletlist;
     static List<Enemy> _enemylist;
@@ -114,7 +115,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
                 if (frameSkipEnable)
                 {
                     for (; elapsedTime >= frameTime; elapsedTime -= frameTime)
-                        Update((float)frameTime / 1000);
+                        Update(gl,(float)frameTime / 1000);
                 }
             }
         }
@@ -124,7 +125,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
             frameSkipState = true;
         }
 
-        Update((float)frameTime / 1000);
+        Update(gl,(float)frameTime / 1000);
 
         // 描画用バッファをクリア
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
@@ -142,6 +143,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
         _enemylist = new ArrayList<>();
         deleteEnemyList = new ArrayList<>();
         deleteBulletList= new ArrayList<>();
+        ui = new UI();
         gl10 = gl;
 
         // 大きな遅延が起こるので、次回フレーム処理時のフレームスキップを無効に
@@ -170,10 +172,16 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
         // スプライト初期化
         TextureInfo info = new TextureInfo();
         info = TextureManager.loadTexture(gl, context.getResources(), R.drawable.player000);
-        player.Init(info, 0, 0, 100, 100);
+        TextureInfo bomb = new TextureInfo();
+        bomb = TextureManager.loadTexture(gl,context.getResources(),R.drawable.effect000);
+        player.Init(bomb,info, 0, 0, 100, 100);
         TextureInfo info2 = new TextureInfo();
         info2 = TextureManager.loadTexture(gl, context.getResources(), R.drawable.bg000);
         bg.Init(info2, 0, 0, width, height);
+        TextureInfo info4 = new TextureInfo();
+        info4 = TextureManager.loadTexture(gl, context.getResources(), R.drawable.digitalnum);
+        ui.Init(info4,200,200,40,90);
+
         Random rand = new Random();
         int pos = rand.nextInt(400);
         enemy.Init(pos,500);
@@ -226,9 +234,21 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
     }
 
     // 更新
-    private void Update(float dt)
+    private void Update(GL10 gl,float dt)
     {
+        if(player.pleaseKillMe == true){
+            player = null;
+        }
+        if(player==null){
+            player = new Player(); // 明示的にインスタンスをnewしないといけない
+            TextureInfo info = new TextureInfo();
+            info = TextureManager.loadTexture(gl, context.getResources(), R.drawable.player000);
+            TextureInfo bomb = new TextureInfo();
+            bomb = TextureManager.loadTexture(gl,context.getResources(),R.drawable.effect000);
+            player.Init(bomb,info, 0, 0, 100, 100);
+        }
         count++;
+        bg.Update(dt);
         for(Enemy enemy : _enemylist){
             enemy.Update(dt);
         }
@@ -253,12 +273,13 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
         // 当たり判定
 
         // プレイヤーとエネミーの当たり判定
-
-
-
+        for(Enemy enemy:_enemylist){
+            if(player.Getcol().isHit(enemy.Getcol())){
+                player.SetDeath();
+            }
+        }
+        // 弾とエネミーの当たり判定
         for(Bullet bullet : _bulletlist){
-
-
             for(Enemy enemy:_enemylist){
                 if(bullet.col.isHit(enemy.Getcol())){
                     enemy.visible = false;
@@ -267,7 +288,6 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
                     deleteEnemyList.add(enemy);
                     break;
                 }
-
             }
         }
 
@@ -279,7 +299,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
             _enemylist.remove(enemy);
         }
         deleteEnemyList.clear();
-
+        ui.Update(dt,player.GetScore());
     }
 
     // 描画
@@ -295,7 +315,7 @@ public class GameView extends GLSurfaceView implements GLSurfaceView.Renderer {
             b.Draw(gl10);
         }
         player.Draw(gl10);
-
+        ui.Draw(gl10);
     }
 
     // タッチイベントをプレイヤークラスに渡す
